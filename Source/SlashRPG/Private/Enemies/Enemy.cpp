@@ -27,7 +27,7 @@ void AEnemy::BeginPlay()
 	
 }
 
-void AEnemy::PlayHitReactMontage(const FName& SectionName)git s
+void AEnemy::PlayHitReactMontage(const FName& SectionName)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && HitReactMontage)
