@@ -8,6 +8,8 @@
 #include "Enemy.generated.h"
 
 class UAnimMontage;
+class UAttributeComponent;
+class UHealthBarComponent;
 
 
 UCLASS()
@@ -23,7 +25,23 @@ public:
 
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 
+protected:
+	virtual void BeginPlay() override;
+
+	/**
+	 * Play Montages Function
+	 */
+	void PlayHitReactMontage(const FName& SectionName);
+
+	
 private:
+
+	UPROPERTY(VisibleAnywhere)
+	UAttributeComponent* Attributes;
+
+	UPROPERTY(VisibleAnywhere)
+	UHealthBarComponent * HealthBarWidget;
+	
 	/**
 	 * Animation Montages
 	 */
@@ -37,14 +55,5 @@ private:
 	UParticleSystem* HitParticles;
 	
 	
-protected:
-	virtual void BeginPlay() override;
-
-	/**
-	 * Play Montages Function
-	 */
-	void PlayHitReactMontage(const FName& SectionName);
-
-public:	
 
 };
