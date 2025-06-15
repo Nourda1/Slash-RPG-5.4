@@ -48,7 +48,7 @@ private:
 	USceneComponent* BoxTraceEnd;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
-	float Damage = 20;
+	float Damage = 40;
 
 	
 
