@@ -98,7 +98,10 @@ private:
 
 	FTimerHandle PatrolTimer;
 	void PatrolTimerFinished();
+	void CheckCombatTarget();
+	void CheckPatrolTarget();
 
-	
-	
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float WaitMin = 3.f;
+	float WaitMax = 7.f;
 };

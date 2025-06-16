@@ -39,13 +39,13 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	if (HealthBarWidget)
 	{
 		HealthBarWidget->SetVisibility(false);
 	}
 
 	EnemyController = Cast<AAIController>(GetController());
-
 	MoveToTarget(PatrolTarget);
 }
 
@@ -103,6 +103,7 @@ bool AEnemy::InTargetRange(AActor* Target, double Radius)
 
 void AEnemy::MoveToTarget(AActor* Target)
 {
+	if (EnemyActionState == EEnemyState::EES_Dead) return;
 	if (EnemyController == nullptr || Target == nullptr) return;
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Target);
@@ -146,28 +147,35 @@ void AEnemy::PatrolTimerFinished()
 	MoveToTarget(PatrolTarget);
 }
 
+void AEnemy::CheckCombatTarget()
+{
+	if (!InTargetRange(CombatTarget, CombatRadius))
+	{
+		CombatTarget = nullptr;
+		if (HealthBarWidget)
+		{
+			HealthBarWidget->SetVisibility(false);
+		}
+	}
+}
+
+void AEnemy::CheckPatrolTarget()
+{
+	if (InTargetRange(PatrolTarget, PatrolRadius))
+	{
+		const float WaitTime = FMath::RandRange(WaitMin, WaitMax);
+		PatrolTarget = ChoosePatrolTarget();
+		GetWorldTimerManager().SetTimer(PatrolTimer, this, &AEnemy::PatrolTimerFinished, WaitTime);
+	}
+}
+
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (CombatTarget)
-	{
-		if (!InTargetRange(CombatTarget, CombatRadius))
-		{
-			CombatTarget = nullptr;
-			if (HealthBarWidget)
-			{
-				HealthBarWidget->SetVisibility(false);
-			}
-		}
-	}
-
-	if (InTargetRange(PatrolTarget, PatrolRadius))
-	{
-		PatrolTarget = ChoosePatrolTarget();
-		GetWorldTimerManager().SetTimer(PatrolTimer, this, &AEnemy::PatrolTimerFinished, 5.f);
-	}
+	CheckCombatTarget();
+	CheckPatrolTarget();
 }
 
 // Called to bind functionality to input
