@@ -33,6 +33,8 @@ protected:
 	void Die();
 
 	bool InTargetRange(AActor* Target, double Radius);
+	void MoveToTarget(AActor* Target);
+	AActor* ChoosePatrolTarget();
 
 	/**
 	 * Play Montages Function
@@ -92,6 +94,11 @@ private:
 	TArray<AActor*> PatrolTargets;
 
 	UPROPERTY(EditAnywhere)
-	double PatrolRadius = 200.f;
+	double PatrolRadius = 250.f;
+
+	FTimerHandle PatrolTimer;
+	void PatrolTimerFinished();
+
+	
 	
 };
