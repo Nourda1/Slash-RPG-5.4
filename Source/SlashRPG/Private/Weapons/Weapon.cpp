@@ -84,7 +84,6 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	for(AActor* Actor : IgnoreActors)
 	{
 		ActorsToIgnore.AddUnique(Actor);
-		
 	}
 	
 	FHitResult BoxHit;

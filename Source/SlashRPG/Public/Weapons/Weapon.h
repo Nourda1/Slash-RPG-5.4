@@ -34,6 +34,7 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateFields(const FVector& FieldLocation);
+	
 private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	USoundBase* EquipSound;
