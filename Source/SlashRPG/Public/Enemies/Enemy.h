@@ -3,18 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "Interfaces/HitInterface.h"
 #include "Characters/CharacterTypes.h"
+#include "Characters/BaseCharacter.h"
 #include "Enemy.generated.h"
 
-class UAnimMontage;
-class UAttributeComponent;
+
 class UHealthBarComponent;
 class UPawnSensingComponent;
 
 UCLASS()
-class SLASHRPG_API AEnemy : public ACharacter, public IHitInterface
+class SLASHRPG_API AEnemy : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -22,23 +20,18 @@ public:
 	AEnemy();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	void DirectionalHitReact(const FVector& ImpactPoint);
+	
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
 	virtual void BeginPlay() override;
 	
-	void Die();
+	virtual void Die() override;
 
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
-
-	/**
-	 * Play Montages Function
-	 */
-	void PlayHitReactMontage(const FName& SectionName);
 
 	UPROPERTY(BlueprintReadOnly)
 	EDeathPose DeathPose = EDeathPose::EDP_Alive;
@@ -47,7 +40,6 @@ protected:
 	void PawnSeen(APawn* SeenPawn);
 	
 
-	
 private:
 	/**
 	 * Components
@@ -57,10 +49,7 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, Category = ActionState, meta=(AllowPrivateAccess= "true" ))
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
-
-	UPROPERTY(VisibleAnywhere)
-	UAttributeComponent* Attributes;
-
+	
 	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent * HealthBarWidget;
 
@@ -70,17 +59,6 @@ private:
 	/**
 	 * Animation Montages
 	 */
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	UAnimMontage* HitReactMontage;
-
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	UAnimMontage* DeathMontage;
-
-	UPROPERTY(EditAnywhere, Category = Sounds)
-	USoundBase* HitSound;
-
-	UPROPERTY(EditAnywhere, Category = "Visual Effects")
-	UParticleSystem* HitParticles;
 
 	UPROPERTY()
 	AActor* CombatTarget;
