@@ -11,7 +11,7 @@
 class UAnimMontage;
 class UAttributeComponent;
 class UHealthBarComponent;
-
+class UPawnSensingComponent;
 
 UCLASS()
 class SLASHRPG_API AEnemy : public ACharacter, public IHitInterface
@@ -24,7 +24,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void DirectionalHitReact(const FVector& ImpactPoint);
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
-
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 protected:
@@ -43,19 +42,30 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	EDeathPose DeathPose = EDeathPose::EDP_Alive;
+
+	UFUNCTION()
+	void PawnSeen(APawn* SeenPawn);
 	
 
 	
 private:
+	/**
+	 * Components
+	 */
+	UPROPERTY(BlueprintReadWrite, Category = ActionState, meta=(AllowPrivateAccess= "true" ))
+	EEnemyState EnemyLifeState = EEnemyState::EES_Alive;
 
 	UPROPERTY(BlueprintReadWrite, Category = ActionState, meta=(AllowPrivateAccess= "true" ))
-	EEnemyState EnemyActionState = EEnemyState::EES_Alive;
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
 
 	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent * HealthBarWidget;
+
+	UPROPERTY(VisibleAnywhere)
+	UPawnSensingComponent* PawnSensing;
 	
 	/**
 	 * Animation Montages
@@ -77,6 +87,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	double CombatRadius = 1500.f;
+
+	UPROPERTY(EditAnywhere)
+	double AttackRadius = 200.f;
 	
 
 	/**
