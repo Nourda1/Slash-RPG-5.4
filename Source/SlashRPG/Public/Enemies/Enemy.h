@@ -36,27 +36,27 @@ protected:
 	void PawnSeen(APawn* SeenPawn);
 
 	virtual void Attack () override;
-	virtual void PlayAttackMontage() override;
 	virtual bool CanAttack() override;
 	virtual void HandleDamage(float DamageAmount) override;
 
 	UPROPERTY(BlueprintReadOnly)
-	EDeathPose DeathPose;
+	TEnumAsByte<EDeathPose> DeathPose;
 
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
-	
+	virtual int32 PlayDeathMontage() override;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float DeathLifeSpan = 5.f;
+
+	virtual void AttackEnd() override;
 	
 
 private:
 	/**
 	 * Components
 	 */
-
-	UPROPERTY(BlueprintReadWrite, Category = ActionState, meta=(AllowPrivateAccess= "true" ))
-	EEnemyState EnemyLifeState = EEnemyState::EES_Alive;
-	
 	
 	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent * HealthBarWidget;
@@ -100,8 +100,8 @@ private:
 	void CheckPatrolTarget();
 
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
-	float WaitMin = 3.f;
-	float WaitMax = 7.f;
+	float WaitMin = 1.f;
+	float WaitMax = 2.f;
 
 	/**  AI Behaviour */
 	void HideHealthBar();
@@ -132,7 +132,7 @@ private:
 	float AttackMax = 1.f;
 	
 	UPROPERTY(EditAnywhere, Category = Combat)
-	float PatrollingSpeed = 125.f;
+	float PatrollingSpeed = 175.f;
 	
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float ChasingSpeed = 600.f;
