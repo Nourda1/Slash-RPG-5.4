@@ -8,8 +8,6 @@
 #include "CharacterTypes.h"
 #include "SlashCharacter.generated.h"
 
-
-
 class UInputMappingContext;
 class UInputAction;
 class USpringArmComponent;
@@ -26,16 +24,14 @@ class SLASHRPG_API ASlashCharacter : public ABaseCharacter
 
 public:
 	ASlashCharacter();
-	virtual void Tick(float DeltaTime) override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 
 protected:
 	virtual void BeginPlay() override;
 
-	/**
-	* Callback for Inputs
-	*/
+	/** Callback for Inputs */
 	UPROPERTY(EditAnywhere, Category = Input)	
 	UInputMappingContext* SlashContext;
 
@@ -47,52 +43,50 @@ protected:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	virtual void Attack () override;
 	void EKeyPressed(); // action mapping no float needed - equip key
 
-	/**
-	 * Play Montages Function
-	 */
-	
+	/** Combat */
+	void EquipWeapon(AWeapon* Weapon);
+	virtual void Attack () override;
 	virtual void AttackEnd() override;
 	virtual bool CanAttack() override;
-
-	void PlayEquipMontage(const FName& SectionName);
 	bool CanDisarm();
 	bool CanArm();
-
-	UFUNCTION(BlueprintCallable)
 	void Disarm();
+	void Arm();
+	void PlayEquipMontage(const FName& SectionName);
 
 	UFUNCTION(BlueprintCallable)
-	void Arm();
+	void AttachWeaponToBack();
+
+	UFUNCTION(BlueprintCallable)
+	void AttachWeaponToHand();
 
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
 	
 	
 private:
-	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
-
-	UPROPERTY(BlueprintReadWrite, Category = ActionState, meta=(AllowPrivateAccess= "true" ))
-	EActionState ActionState = EActionState::EAS_Unoccupied;
-	
+	/** Character Components */
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* ViewCamera;
+
+	UPROPERTY(BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
+	USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, Category = "Hair")
 	UGroomComponent* Hair;
 
 	UPROPERTY(VisibleAnywhere, Category = "Hair")
 	UGroomComponent* Eyebrows;
-
-	UPROPERTY(BlueprintReadWrite, Category = Input, meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
-
+	
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
 
-	
+	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+
+	UPROPERTY(BlueprintReadWrite, Category = ActionState, meta=(AllowPrivateAccess= "true" ))
+	EActionState ActionState = EActionState::EAS_Unoccupied;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
