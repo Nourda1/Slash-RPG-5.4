@@ -72,20 +72,12 @@ void AEnemy::Destroyed()
 	}
 }
 
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	if (IsDead()) return;
 	
-	ShowHealthBar();
-	if(IsAlive())
-	{
-		DirectionalHitReact(ImpactPoint);
-	}
-	else Die();
-	
-	PlayHitSound(ImpactPoint);
-	SpawnHitParticles(ImpactPoint);
-	
+	Super::GetHit_Implementation(ImpactPoint, Hitter);
+	if (!IsDead()) ShowHealthBar();
+	ClearPatrolTimer();
 	//DRAW_SPHERE_COLOR(ImpactPoint, FColor::Cyan);
 }
 
@@ -101,7 +93,6 @@ void AEnemy::BeginPlay()
 
 void AEnemy::Die()
 {
-	if (IsDead()) return;
 	EnemyState = EEnemyState::EES_Dead;
 	PlayDeathMontage();
 	ClearAttackTimer();
@@ -109,6 +100,7 @@ void AEnemy::Die()
 	DisableCapsule();
 	SetLifeSpan(DeathLifeSpan);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AEnemy::Attack()
@@ -152,7 +144,6 @@ void AEnemy::AttackEnd()
 {
 	EnemyState = EEnemyState::EES_NoState;
 	CheckCombatTarget();
-	
 }
 
 void AEnemy::InitializeEnemy()
@@ -310,7 +301,7 @@ void AEnemy::MoveToTarget(AActor* Target)
 	if (EnemyController == nullptr || Target == nullptr) return;
 		FAIMoveRequest MoveRequest;
 		MoveRequest.SetGoalActor(Target);
-		MoveRequest.SetAcceptanceRadius(125.f);
+		MoveRequest.SetAcceptanceRadius(AcceptanceRadius);
 		EnemyController->MoveTo(MoveRequest);
 }
 

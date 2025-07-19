@@ -26,7 +26,7 @@ public:
 	/** </AActor> */
 
 	/** <IHitInterface> */
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	/** </IHitInterface> */
 	
 protected:
@@ -114,11 +114,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	double PatrolRadius = 250.f;
 
+	UPROPERTY(EditAnywhere)
+	double AcceptanceRadius = 125.f;
+
 	FTimerHandle PatrolTimer;
 	
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
-	float PatrolWaitMin = 1.f;
-	float PatrolWaitMax = 3.f;
+	float PatrolWaitMin = 5.f;
+	float PatrolWaitMax = 10.f;
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float PatrollingSpeed = 175.f;

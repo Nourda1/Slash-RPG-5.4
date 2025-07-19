@@ -21,6 +21,19 @@ void ABaseCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
+{
+	if(IsAlive() && Hitter)
+	{
+		DirectionalHitReact(Hitter->GetActorLocation());
+	}
+	else Die();
+	
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
+}
+
 void ABaseCharacter::Attack()
 {
 }
@@ -32,12 +45,13 @@ void ABaseCharacter::Die()
 void ABaseCharacter::PlayHitReactMontage(const FName& SectionName)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && HitReactMontage)
+	if(AnimInstance && HitReactMontage)
 	{
 		AnimInstance->Montage_Play(HitReactMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, HitReactMontage);
+		AnimInstance->Montage_JumpToSection(SectionName,HitReactMontage);
 	}
 }
+
 
 void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 {
@@ -78,7 +92,6 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 	}
 	
 	PlayHitReactMontage(Section);
-	
 }
 
 void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
