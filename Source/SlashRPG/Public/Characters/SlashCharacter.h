@@ -6,6 +6,7 @@
 #include "BaseCharacter.h"
 #include "InputActionValue.h"
 #include "CharacterTypes.h"
+#include "HUD/SlashOverlay.h"
 #include "SlashCharacter.generated.h"
 
 class UInputMappingContext;
@@ -15,6 +16,7 @@ class UCameraComponent;
 class UGroomComponent;
 class AItem;
 class UAnimMontage;
+class USlashOverlay;
 
 
 UCLASS()
@@ -27,6 +29,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	
 
 protected:
 	virtual void BeginPlay() override;
@@ -70,6 +74,8 @@ protected:
 	
 	
 private:
+	void InitializeSlashOverlay();
+	
 	/** Character Components */
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* ViewCamera;
@@ -93,6 +99,11 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
+
+	UPROPERTY()
+	USlashOverlay* SlashOverlay;
+
+	
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
