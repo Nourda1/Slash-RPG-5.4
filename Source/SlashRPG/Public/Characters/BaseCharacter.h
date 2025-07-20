@@ -5,11 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
+#include "Characters/CharacterTypes.h"
 #include "BaseCharacter.generated.h"
 
 class AWeapon;
 class UAttributeComponent;
 class UAnimMontage;
+
 
 UCLASS()
 class SLASHRPG_API ABaseCharacter : public ACharacter, public IHitInterface
@@ -32,6 +34,7 @@ protected:
 	void DisableCapsule();
 	virtual bool CanAttack();
 	bool IsAlive();
+	void DisableMeshCollision();
 
 	/** Animation Montages */
 	void PlayHitReactMontage(const FName& SectionName);
@@ -66,6 +69,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float InterpSpeed = 1.f;
+
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EDeathPose> DeathPose;
 	
 private:
 	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
@@ -93,7 +99,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TArray<FName> DeathMontageSections;
 
-	
+public:
+	FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const {return DeathPose; }
 
 	
 };

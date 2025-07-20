@@ -7,6 +7,7 @@
 #include "InputActionValue.h"
 #include "CharacterTypes.h"
 #include "HUD/SlashOverlay.h"
+#include "Interfaces/PickupInterface.h"
 #include "SlashCharacter.generated.h"
 
 class UInputMappingContext;
@@ -17,10 +18,11 @@ class UGroomComponent;
 class AItem;
 class UAnimMontage;
 class USlashOverlay;
+class ASoul;
 
 
 UCLASS()
-class SLASHRPG_API ASlashCharacter : public ABaseCharacter
+class SLASHRPG_API ASlashCharacter : public ABaseCharacter, public IPickupInterface
 {
 	GENERATED_BODY()
 
@@ -28,9 +30,11 @@ public:
 	ASlashCharacter();
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Jump() override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
+	virtual void SetOverlappingItem(AItem* Item) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
-	
+	virtual void AddSouls(ASoul* Soul) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -59,7 +63,8 @@ protected:
 	void Disarm();
 	void Arm();
 	void PlayEquipMontage(const FName& SectionName);
-
+	virtual void Die() override;
+	
 	UFUNCTION(BlueprintCallable)
 	void AttachWeaponToBack();
 
@@ -75,6 +80,9 @@ protected:
 	
 private:
 	void InitializeSlashOverlay();
+	void SetHUDHealth();
+	bool IsUnoccupied();
+	bool IsDead();
 	
 	/** Character Components */
 	UPROPERTY(VisibleAnywhere)
@@ -103,9 +111,8 @@ private:
 	UPROPERTY()
 	USlashOverlay* SlashOverlay;
 
-	
-
 public:
-	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
+	
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+	FORCEINLINE EActionState GetActionState() const {return ActionState; }
 };
