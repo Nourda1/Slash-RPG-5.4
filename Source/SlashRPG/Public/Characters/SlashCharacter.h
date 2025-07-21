@@ -19,6 +19,7 @@ class AItem;
 class UAnimMontage;
 class USlashOverlay;
 class ASoul;
+class ATreasure;
 
 
 UCLASS()
@@ -28,6 +29,8 @@ class SLASHRPG_API ASlashCharacter : public ABaseCharacter, public IPickupInterf
 
 public:
 	ASlashCharacter();
+	virtual void Tick(float DeltaTime) override;
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void Jump() override;
@@ -35,6 +38,7 @@ public:
 	virtual void SetOverlappingItem(AItem* Item) override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void AddSouls(ASoul* Soul) override;
+	virtual void AddGold(ATreasure* Treasure) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -52,11 +56,15 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void EKeyPressed(); // action mapping no float needed - equip key
+	bool IsOccupied();
+	bool HasEnoughStamina();
+	void Dodge();
 
 	/** Combat */
 	void EquipWeapon(AWeapon* Weapon);
 	virtual void Attack () override;
 	virtual void AttackEnd() override;
+	virtual void DodgeEnd() override;
 	virtual bool CanAttack() override;
 	bool CanDisarm();
 	bool CanArm();

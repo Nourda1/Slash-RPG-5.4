@@ -10,9 +10,11 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "Components/AttributeComponent.h"
 #include "HUD/HealthBarComponent.h"
+#include "Items/Soul.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapons/Weapon.h"
 #include "SlashRPG/DebugMacros.h"
+#include "Items/Soul.h"
 
 
 // Sets default values
@@ -103,6 +105,8 @@ void AEnemy::BeginPlay()
 	Tags.Add(FName("Enemy"));
 }
 
+
+
 void AEnemy::Die()
 {
 	Super::Die();
@@ -113,6 +117,23 @@ void AEnemy::Die()
 	SetLifeSpan(DeathLifeSpan);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	SpawnSoul();
+}
+
+void AEnemy::SpawnSoul()
+{
+	UWorld* World = GetWorld();
+	if (World && SoulClass && Attributes)
+	{
+		//const FVector SpawnLocation = GetActorLocation() + FVector(0.f,0.f,15.f);
+		
+		ASoul* SpawnedSoul = World->SpawnActor<ASoul>(SoulClass, GetActorLocation(), GetActorRotation());
+		if(SpawnedSoul)
+		{
+			SpawnedSoul->SetSouls(Attributes->GetSouls());
+		}
+	}
 }
 
 void AEnemy::Attack()

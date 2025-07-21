@@ -40,6 +40,7 @@ protected:
 	void PlayHitReactMontage(const FName& SectionName);
 	virtual int32 PlayAttackMontage();
 	virtual int32 PlayDeathMontage();
+	virtual void PlayDodgeMontage();
 	void StopAttackMontage();
 
 	UFUNCTION(BlueprintCallable)
@@ -50,6 +51,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void DodgeEnd();
 	
 	UFUNCTION(BlueprintCallable)
 	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
@@ -87,6 +91,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = Combat )
 	UAnimMontage* AttackMontage;
 
+	UPROPERTY(EditDefaultsOnly, Category = Combat )
+	UAnimMontage* DodgeMontage;
+	
 	UPROPERTY(EditDefaultsOnly, Category = Combat)
 	UAnimMontage* HitReactMontage;
 
@@ -101,6 +108,5 @@ private:
 
 public:
 	FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const {return DeathPose; }
-
 	
 };

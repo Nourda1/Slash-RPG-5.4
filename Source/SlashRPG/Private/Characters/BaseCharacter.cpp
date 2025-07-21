@@ -168,6 +168,11 @@ int32 ABaseCharacter::PlayDeathMontage()
 	return Selection;
 }
 
+void ABaseCharacter::PlayDodgeMontage()
+{
+	PlayMontageSection(DodgeMontage, FName("Dodge"));
+}
+
 void ABaseCharacter::StopAttackMontage()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -228,6 +233,10 @@ int32 ABaseCharacter::PlayAttackMontage()
 }
 
 void ABaseCharacter::AttackEnd()
+{
+}
+
+void ABaseCharacter::DodgeEnd()
 {
 }
 

@@ -32,6 +32,7 @@ public:
 protected:
 	/** <AActor> */
 	virtual void BeginPlay() override;
+	void SpawnSoul();
 	/** </AActor> */
 
 	/** <ABaseCharacter> */
@@ -133,7 +134,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category = Combat)
 	float DeathLifeSpan = 5.f;
-	
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	TSubclassOf<class ASoul> SoulClass;
 };
 
 
