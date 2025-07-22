@@ -113,6 +113,8 @@ void AWeapon::BoxTrace(FHitResult& BoxHit)
 
 	TArray<AActor*> ActorsToIgnore; //Create local actors to ignore
 	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(GetOwner());
+	
 
 	for(AActor* Actor : IgnoreActors) //fills in ignore actors
 	{

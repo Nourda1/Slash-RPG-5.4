@@ -36,14 +36,14 @@ protected:
 	/** </AActor> */
 
 	/** <ABaseCharacter> */
-	virtual void Die() override;
+	virtual void Die_Implementation() override;
 	virtual void Attack () override;
 	virtual bool CanAttack() override;
 	virtual void HandleDamage(float DamageAmount) override;
 	virtual void AttackEnd() override;
 	/** </ABaseCharacter> */
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
 	
@@ -85,13 +85,13 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* PawnSensing;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Combat)
 	TSubclassOf<class AWeapon> WeaponClass;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Combat)
 	double CombatRadius = 1500.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Combat)
 	double AttackRadius = 300.f;
 
 	/** Navigation */
