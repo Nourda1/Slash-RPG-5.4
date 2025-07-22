@@ -84,7 +84,7 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
 	void HitReactEnd();
-	
+
 	
 private:
 	void InitializeSlashOverlay();
