@@ -11,7 +11,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GroomComponent.h"
 #include "Components/AttributeComponent.h"
-#include "Item.h"
+#include "Items/Item.h"
 #include "Weapons/Weapon.h"
 #include "Animation/AnimMontage.h"
 #include "Components/AttributeComponent.h"
