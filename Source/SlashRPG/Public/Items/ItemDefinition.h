@@ -30,6 +30,14 @@ public:
 	/** Icon displayed in the inventory UI. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
 	TObjectPtr<UTexture2D> Icon;
+	
+	/** Whether multiple copies of this item can occupy the same inventory slot. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
+	bool bCanStack = false;
+
+	/** Maximum number of this item that can occupy a single inventory slot. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory", meta = (EditCondition = "bCanStack", ClampMin = "1"))
+	int32 MaxStackSize = 1;
 
 	/** Modular pieces of functionality/data attached to this item. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Instanced, Category = "Item")

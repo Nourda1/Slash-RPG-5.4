@@ -15,7 +15,10 @@ class SLASHRPG_API UInventoryComponent : public UActorComponent
 public:
 
 	UInventoryComponent();
-	bool AddItem(UItemDefinition* ItemDefinition, int32 Quantity);
+	
+	int32 AddItem(UItemDefinition* ItemDefinition, int32 Quantity);
+	bool SplitStack(int32 SourceSlotIndex, int32 QuantityToSplit);
+	bool MergeStacks(int32 SourceSlotIndex, int32 DestinationSlotIndex);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory|Testing")
 	UItemDefinition* TestItemDefinition;
@@ -24,7 +27,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-	int32 MaxSlots = 32;
+	int32 MaxSlots = 2;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	TArray<FInventoryEntry> InventoryEntries;
