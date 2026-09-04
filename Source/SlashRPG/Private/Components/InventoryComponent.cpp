@@ -1,40 +1,56 @@
 ﻿#include "Components/InventoryComponent.h"
-
 #include "Items/ItemDefinition.h"
+
+
+UInventoryComponent::UInventoryComponent()
+{
+    PrimaryComponentTick.bCanEverTick = false;
+}
 
 void UInventoryComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    // Create a stack of 6.
-    AddItem(TestItemDefinition, 6);
-
-    // Try to add 8 more.
-    const int32 AddedQuantity = AddItem(TestItemDefinition, 8);
-
-    UE_LOG(
-        LogTemp,
-        Warning,
-        TEXT("Requested: 8 | Actually Added: %d"),
-        AddedQuantity
-    );
-
-    // Print the current inventory contents.
-    for (const FInventoryEntry& Entry : InventoryEntries)
-    {
-        UE_LOG(
-            LogTemp,
-            Warning,
-            TEXT("Slot %d: Quantity %d"),
-            Entry.SlotIndex,
-            Entry.Quantity
-        );
-    }
+    // Testing code goes here.
 }
 
-UInventoryComponent::UInventoryComponent()
+FInventoryEntry* UInventoryComponent::FindEntryBySlot(int32 SlotIndex)
 {
-	PrimaryComponentTick.bCanEverTick = false;
+    for (FInventoryEntry& Entry : InventoryEntries)
+    {
+        if (Entry.SlotIndex == SlotIndex)
+        {
+            return &Entry;
+        }
+    }
+
+    return nullptr;
+}
+
+const FInventoryEntry* UInventoryComponent::FindEntryBySlot(int32 SlotIndex) const
+{
+    for (const FInventoryEntry& Entry : InventoryEntries)
+    {
+        if (Entry.SlotIndex == SlotIndex)
+        {
+            return &Entry;
+        }
+    }
+
+    return nullptr;
+}
+
+int32 UInventoryComponent::FindFirstEmptySlot() const
+{
+    for (int32 SlotIndex = 0; SlotIndex < MaxSlots; ++SlotIndex)
+    {
+        if (!FindEntryBySlot(SlotIndex))
+        {
+            return SlotIndex;
+        }
+    }
+
+    return -1;
 }
 
 int32 UInventoryComponent::AddItem(UItemDefinition* ItemDefinition, int32 Quantity)
@@ -80,28 +96,7 @@ int32 UInventoryComponent::AddItem(UItemDefinition* ItemDefinition, int32 Quanti
     // Create new stacks/entries in empty slots.
     while (RemainingQuantity > 0)
     {
-        int32 FoundSlotIndex = -1;
-
-        // Find the first empty slot.
-        for (int32 SlotIndex = 0; SlotIndex < MaxSlots; ++SlotIndex)
-        {
-            bool bSlotOccupied = false;
-
-            for (const FInventoryEntry& Entry : InventoryEntries)
-            {
-                if (Entry.SlotIndex == SlotIndex)
-                {
-                    bSlotOccupied = true;
-                    break;
-                }
-            }
-
-            if (!bSlotOccupied)
-            {
-                FoundSlotIndex = SlotIndex;
-                break;
-            }
-        }
+        const int32 FoundSlotIndex = FindFirstEmptySlot();
 
         // No empty slot available.
         if (FoundSlotIndex == -1)
@@ -128,19 +123,55 @@ int32 UInventoryComponent::AddItem(UItemDefinition* ItemDefinition, int32 Quanti
     return Quantity - RemainingQuantity;
 }
 
-bool UInventoryComponent::SplitStack(int32 SourceSlotIndex, int32 QuantityToSplit)
+int32 UInventoryComponent::RemoveItem(UItemDefinition* ItemDefinition, int32 Quantity)
 {
-    // Find the source entry.
-    FInventoryEntry* SourceEntry = nullptr;
-
-    for (FInventoryEntry& Entry : InventoryEntries)
+    if (!ItemDefinition || Quantity <= 0)
     {
-        if (Entry.SlotIndex == SourceSlotIndex)
+        return 0;
+    }
+
+    int32 RemainingQuantity = Quantity;
+
+    // Search through the inventory for the requested item.
+    for (int32 Index = InventoryEntries.Num() - 1; Index >= 0; --Index)
+    {
+        FInventoryEntry& Entry = InventoryEntries[Index];
+
+        // This isn't the item we're looking for.
+        if (Entry.ItemDefinition != ItemDefinition)
         {
-            SourceEntry = &Entry;
+            continue;
+        }
+
+        // Determine how much we can remove from this stack.
+        const int32 AmountToRemove =
+            FMath::Min(RemainingQuantity, Entry.Quantity);
+
+        Entry.Quantity -= AmountToRemove;
+        RemainingQuantity -= AmountToRemove;
+
+        // Remove the entry if the stack is now empty.
+        if (Entry.Quantity <= 0)
+        {
+            InventoryEntries.RemoveAt(Index);
+        }
+
+        // We've removed everything requested.
+        if (RemainingQuantity <= 0)
+        {
             break;
         }
     }
+
+    // Return the amount that was actually removed.
+    return Quantity - RemainingQuantity;
+}
+
+bool UInventoryComponent::SplitStack(int32 SourceSlotIndex, int32 QuantityToSplit)
+{
+    // Find the source entry.
+    FInventoryEntry* SourceEntry =
+        FindEntryBySlot(SourceSlotIndex);
 
     // Source slot doesn't contain an item.
     if (!SourceEntry)
@@ -163,27 +194,8 @@ bool UInventoryComponent::SplitStack(int32 SourceSlotIndex, int32 QuantityToSpli
     }
 
     // Find an empty slot.
-    int32 FoundSlotIndex = -1;
-
-    for (int32 SlotIndex = 0; SlotIndex < MaxSlots; ++SlotIndex)
-    {
-        bool bSlotOccupied = false;
-
-        for (const FInventoryEntry& Entry : InventoryEntries)
-        {
-            if (Entry.SlotIndex == SlotIndex)
-            {
-                bSlotOccupied = true;
-                break;
-            }
-        }
-
-        if (!bSlotOccupied)
-        {
-            FoundSlotIndex = SlotIndex;
-            break;
-        }
-    }
+    const int32 FoundSlotIndex =
+        FindFirstEmptySlot();
 
     // No empty slot available.
     if (FoundSlotIndex == -1)
@@ -205,36 +217,21 @@ bool UInventoryComponent::SplitStack(int32 SourceSlotIndex, int32 QuantityToSpli
     return true;
 }
 
-bool UInventoryComponent::MergeStacks(int32 SourceSlotIndex, int32 DestinationSlotIndex)
+bool UInventoryComponent::MergeStacks(
+    int32 SourceSlotIndex,
+    int32 DestinationSlotIndex)
 {
-     // Source and destination must be different slots.
+    // Source and destination must be different slots.
     if (SourceSlotIndex == DestinationSlotIndex)
     {
         return false;
     }
 
-    FInventoryEntry* SourceEntry = nullptr;
-    FInventoryEntry* DestinationEntry = nullptr;
+    FInventoryEntry* SourceEntry =
+        FindEntryBySlot(SourceSlotIndex);
 
-    // Find the source and destination entries.
-    for (FInventoryEntry& Entry : InventoryEntries)
-    {
-        if (Entry.SlotIndex == SourceSlotIndex)
-        {
-            SourceEntry = &Entry;
-        }
-
-        if (Entry.SlotIndex == DestinationSlotIndex)
-        {
-            DestinationEntry = &Entry;
-        }
-
-        // We found both entries, so we don't need to continue searching.
-        if (SourceEntry && DestinationEntry)
-        {
-            break;
-        }
-    }
+    FInventoryEntry* DestinationEntry =
+        FindEntryBySlot(DestinationSlotIndex);
 
     // Both slots must contain items.
     if (!SourceEntry || !DestinationEntry)
@@ -243,7 +240,8 @@ bool UInventoryComponent::MergeStacks(int32 SourceSlotIndex, int32 DestinationSl
     }
 
     // Both entries must refer to the same item.
-    if (SourceEntry->ItemDefinition != DestinationEntry->ItemDefinition)
+    if (SourceEntry->ItemDefinition !=
+        DestinationEntry->ItemDefinition)
     {
         return false;
     }
@@ -287,3 +285,69 @@ bool UInventoryComponent::MergeStacks(int32 SourceSlotIndex, int32 DestinationSl
 
     return true;
 }
+
+bool UInventoryComponent::MoveItem(
+    int32 SourceSlotIndex,
+    int32 DestinationSlotIndex)
+{
+    // Source and destination must be different slots.
+    if (SourceSlotIndex == DestinationSlotIndex)
+    {
+        return false;
+    }
+
+    FInventoryEntry* SourceEntry =
+        FindEntryBySlot(SourceSlotIndex);
+
+    FInventoryEntry* DestinationEntry =
+        FindEntryBySlot(DestinationSlotIndex);
+
+    // Source slot must contain an item.
+    if (!SourceEntry)
+    {
+        return false;
+    }
+
+    // If the destination is empty, simply move the source entry.
+    if (!DestinationEntry)
+    {
+        SourceEntry->SlotIndex = DestinationSlotIndex;
+        return true;
+    }
+
+    // If both slots contain the same item, merge the stacks.
+    if (SourceEntry->ItemDefinition ==
+        DestinationEntry->ItemDefinition)
+    {
+        // Let MergeStacks() handle the full or partial merge.
+        return MergeStacks(
+            SourceSlotIndex,
+            DestinationSlotIndex);
+    }
+
+    // The slots contain different items, so swap them.
+    SourceEntry->SlotIndex = DestinationSlotIndex;
+    DestinationEntry->SlotIndex = SourceSlotIndex;
+
+    return true;
+}
+
+int32 UInventoryComponent::GetMaxSlots() const
+{
+    return MaxSlots;
+}
+
+bool UInventoryComponent::IsSlotOccupied(int32 SlotIndex) const
+{
+    return FindEntryBySlot(SlotIndex) != nullptr;
+}
+
+const FInventoryEntry* UInventoryComponent::GetEntryAtSlot(int32 SlotIndex) const
+{
+    return FindEntryBySlot(SlotIndex);
+}
+
+
+
+
+
