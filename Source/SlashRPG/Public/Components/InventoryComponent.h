@@ -7,6 +7,8 @@
 
 class UItemDefinition;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryChanged);
+
 UCLASS(ClassGroup = (Custom), BlueprintType, Blueprintable, meta = (BlueprintSpawnableComponent))
 class SLASHRPG_API UInventoryComponent : public UActorComponent
 {
@@ -26,7 +28,13 @@ public:
 	int32 GetMaxSlots() const;
 	const FInventoryEntry* GetEntryAtSlot(int32 SlotIndex) const;
 	bool IsSlotOccupied(int32 SlotIndex) const;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+	FOnInventoryChanged OnInventoryChanged;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory|Testing")
+	UItemDefinition* TestItemDefinition;
+	
 protected:
 
 	virtual void BeginPlay() override;
@@ -43,4 +51,6 @@ private:
 	const FInventoryEntry* FindEntryBySlot(int32 SlotIndex) const;
 
 	int32 FindFirstEmptySlot() const;
+	
+	
 };

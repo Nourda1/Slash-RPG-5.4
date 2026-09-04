@@ -10,8 +10,6 @@ UInventoryComponent::UInventoryComponent()
 void UInventoryComponent::BeginPlay()
 {
     Super::BeginPlay();
-
-    // Testing code goes here.
 }
 
 FInventoryEntry* UInventoryComponent::FindEntryBySlot(int32 SlotIndex)
@@ -98,7 +96,6 @@ int32 UInventoryComponent::AddItem(UItemDefinition* ItemDefinition, int32 Quanti
     {
         const int32 FoundSlotIndex = FindFirstEmptySlot();
 
-        // No empty slot available.
         if (FoundSlotIndex == -1)
         {
             break;
@@ -119,8 +116,14 @@ int32 UInventoryComponent::AddItem(UItemDefinition* ItemDefinition, int32 Quanti
         RemainingQuantity -= AmountToAdd;
     }
 
-    // Return the amount that was actually added.
-    return Quantity - RemainingQuantity;
+    const int32 AddedQuantity = Quantity - RemainingQuantity;
+
+    if (AddedQuantity > 0)
+    {
+        OnInventoryChanged.Broadcast();
+    }
+
+    return AddedQuantity;
 }
 
 int32 UInventoryComponent::RemoveItem(UItemDefinition* ItemDefinition, int32 Quantity)
@@ -346,6 +349,7 @@ const FInventoryEntry* UInventoryComponent::GetEntryAtSlot(int32 SlotIndex) cons
 {
     return FindEntryBySlot(SlotIndex);
 }
+
 
 
 
