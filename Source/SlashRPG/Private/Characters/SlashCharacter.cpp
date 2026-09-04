@@ -19,6 +19,9 @@
 #include "HUD/SlashOverlay.h"
 #include "Items/Soul.h"
 #include "Treasure/Treasure.h"
+#include "HUD/InventoryWidget.h"
+#include "Components/InventoryComponent.h"
+
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -53,6 +56,8 @@ ASlashCharacter::ASlashCharacter()
 	Eyebrows = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrows"));
 	Eyebrows->SetupAttachment(GetMesh());
 	Eyebrows->AttachmentName = FString("head");
+	
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void ASlashCharacter::Tick(float DeltaTime)
@@ -75,6 +80,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	{
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ASlashCharacter::ToggleInventory);
 	}
 
 	PlayerInputComponent->BindAction(FName("Jump"),IE_Pressed, this, &ASlashCharacter::Jump);
@@ -329,6 +335,40 @@ void ASlashCharacter::HitReactEnd()
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
+
+void ASlashCharacter::ToggleInventory()
+{
+	if (!InventoryWidgetClass)
+	{
+		return;
+	}
+
+	if (!InventoryWidget)
+	{
+		InventoryWidget = CreateWidget<UInventoryWidget>(
+			GetWorld(),
+			InventoryWidgetClass
+		);
+
+		if (!InventoryWidget)
+		{
+			return;
+		}
+
+		InventoryWidget->AddToViewport();
+	}
+
+	const ESlateVisibility CurrentVisibility = InventoryWidget->GetVisibility();
+
+	if (CurrentVisibility == ESlateVisibility::Visible)
+	{
+		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
 
 void ASlashCharacter::InitializeSlashOverlay()
 {

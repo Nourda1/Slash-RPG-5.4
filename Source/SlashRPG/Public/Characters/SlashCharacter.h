@@ -20,7 +20,8 @@ class UAnimMontage;
 class USlashOverlay;
 class ASoul;
 class ATreasure;
-
+class UInventoryWidget;
+class UInventoryComponent;
 
 UCLASS()
 class SLASHRPG_API ASlashCharacter : public ABaseCharacter, public IPickupInterface
@@ -52,6 +53,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* LookAction;
+	
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* InventoryAction;
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -84,7 +88,16 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
 	void HitReactEnd();
+	
+	
+	/** Inventory */
+	UPROPERTY(EditDefaultsOnly, Category = "Inventory")
+	TSubclassOf<UInventoryWidget> InventoryWidgetClass;
 
+	UPROPERTY()
+	TObjectPtr<UInventoryWidget> InventoryWidget;
+
+	void ToggleInventory();
 	
 private:
 	void InitializeSlashOverlay();
@@ -105,6 +118,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Hair")
 	UGroomComponent* Eyebrows;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	UInventoryComponent* InventoryComponent;
+	
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
 
@@ -123,4 +139,5 @@ public:
 	
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 	FORCEINLINE EActionState GetActionState() const {return ActionState; }
+	FORCEINLINE UInventoryComponent* GetInventoryComponent() const{ return InventoryComponent; }
 };

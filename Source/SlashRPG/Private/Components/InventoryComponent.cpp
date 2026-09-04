@@ -10,6 +10,7 @@ UInventoryComponent::UInventoryComponent()
 void UInventoryComponent::BeginPlay()
 {
     Super::BeginPlay();
+    
 }
 
 FInventoryEntry* UInventoryComponent::FindEntryBySlot(int32 SlotIndex)
@@ -166,8 +167,17 @@ int32 UInventoryComponent::RemoveItem(UItemDefinition* ItemDefinition, int32 Qua
         }
     }
 
-    // Return the amount that was actually removed.
-    return Quantity - RemainingQuantity;
+   // Determine how much was actually removed.
+   const int32 RemovedQuantity = Quantity - RemainingQuantity;
+   
+   // Only notify listeners if the inventory actually changed.
+   if (RemovedQuantity > 0)
+   {
+       OnInventoryChanged.Broadcast();
+   }
+   
+   // Return the amount that was actually removed.
+   return RemovedQuantity;
 }
 
 bool UInventoryComponent::SplitStack(int32 SourceSlotIndex, int32 QuantityToSplit)
@@ -216,6 +226,8 @@ bool UInventoryComponent::SplitStack(int32 SourceSlotIndex, int32 QuantityToSpli
 
     // Remove the split quantity from the original stack.
     SourceEntry->Quantity -= QuantityToSplit;
+
+    OnInventoryChanged.Broadcast();
 
     return true;
 }
@@ -285,7 +297,9 @@ bool UInventoryComponent::MergeStacks(
                 return Entry.SlotIndex == SourceSlotIndex;
             });
     }
-
+    
+    OnInventoryChanged.Broadcast();
+    
     return true;
 }
 
@@ -315,6 +329,7 @@ bool UInventoryComponent::MoveItem(
     if (!DestinationEntry)
     {
         SourceEntry->SlotIndex = DestinationSlotIndex;
+        OnInventoryChanged.Broadcast();
         return true;
     }
 
@@ -332,6 +347,7 @@ bool UInventoryComponent::MoveItem(
     SourceEntry->SlotIndex = DestinationSlotIndex;
     DestinationEntry->SlotIndex = SourceSlotIndex;
 
+    OnInventoryChanged.Broadcast();
     return true;
 }
 
@@ -349,6 +365,7 @@ const FInventoryEntry* UInventoryComponent::GetEntryAtSlot(int32 SlotIndex) cons
 {
     return FindEntryBySlot(SlotIndex);
 }
+
 
 
 

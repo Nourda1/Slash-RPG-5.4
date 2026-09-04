@@ -35,12 +35,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory|Testing")
 	UItemDefinition* TestItemDefinition;
 	
+	
+	
 protected:
 
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inventory")
-	int32 MaxSlots = 6;
+	int32 MaxSlots = 32;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 	TArray<FInventoryEntry> InventoryEntries;
@@ -51,6 +53,5 @@ private:
 	const FInventoryEntry* FindEntryBySlot(int32 SlotIndex) const;
 
 	int32 FindFirstEmptySlot() const;
-	
 	
 };
